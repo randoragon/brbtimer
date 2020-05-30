@@ -12,8 +12,11 @@ int main(int argc, char **argv)
     state_t state = INIT;
 
     // Validate input
-    if (argc != 2) {
+    if (argc < 2) {
         fprintf(stderr, "brbtimer: duration parameter required (in seconds)\n");
+        return 1;
+    } else if (argc > 2) {
+        fprintf(stderr, "brbtimer: only one parameter required (duration)\n");
         return 1;
     } else {
         char *p;
