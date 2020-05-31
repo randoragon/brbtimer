@@ -17,8 +17,8 @@
 void help()
 {
     printf(
-"USAGE: \n\
-    brbtimer [-h, --help] duration...\n\
+"SYNOPSIS\n\
+    brbtimer [-h, --help] [-n, --noconfirm] duration...\n\
 \n\
     Duration must be a natural number, the implicit unit is seconds.\n\
     You can use the 'h', 'm' and 's' suffixes to specify hours, minutes and\n\
@@ -30,10 +30,21 @@ void help()
     run extensive checks for integer overflow. But it shouldn't matter so long\n\
     you use it reasonably (don't expect setting it to 99999999 hours to work).\n\
 \n\
-EXAMPLES:\n\
+OPTIONS\n\
+    -h, --help\n\
+        Prints this help message.\n\
+\n\
+    -n, --noconfirm\n\
+        Starts the timer without waiting for the user to press enter.\n\
+\n\
+EXAMPLES\n\
     brbtimer 30         - sets the timer to 30 seconds\n\
     brbtimer 20m        - sets the timer to 20 minutes\n\
     brbtimer 1h 5m 2 3  - sets the timer to 1 hour, 5 minutes and 5 seconds\n\
+\n\
+AUTHOR\n\
+    Written by Randoragon <randoragongamedev@gmail.com>\n\
+    Browse the source code at https://github.com/randoragon/brbtimer\n\
 ");
 }
 
@@ -45,6 +56,7 @@ int main(int argc, char **argv)
 
     // Parse stdin
     unsigned int duration, frames_left;
+    bool noconfirm = false;
     duration = 0;
     if (argc < 2) {
         fprintf(stderr, "brbtimer: at least one parameter required (try 'brbtimer --help')\n");
@@ -53,6 +65,18 @@ int main(int argc, char **argv)
         if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
             help();
             return 0;
+        } else if (strcmp(argv[1], "-n") == 0 || strcmp(argv[1], "--noconfirm") == 0) {
+            noconfirm = true;
+            if (argc < 3) {
+                fprintf(stderr, "brbtimer: at least one duration parameter required (try 'brbtimer --help')\n");
+                return 1;
+            } else {
+                // Shift all parameters backwards by one place
+                // Note that by doing this, we lose the argv[0] executable path,
+                // but that's okay, because it's not used anywhere in the code.
+                argv += 1;
+                argc -= 1;
+            }
         }
 
         // Loop over duration parameters and add them up
@@ -134,7 +158,7 @@ int main(int argc, char **argv)
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-    state = WAITING;
+    state = noconfirm? RUNNING : WAITING;
     ALLEGRO_EVENT event;
     bool fps_step;
     al_start_timer(timer);
