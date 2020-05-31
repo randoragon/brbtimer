@@ -86,6 +86,7 @@ int main(int argc, char **argv)
     al_init_image_addon();
     al_init_font_addon();
     al_init_ttf_addon();
+    al_install_keyboard();
 
     // Create and configure display
     const ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
@@ -131,8 +132,9 @@ int main(int argc, char **argv)
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-    state = RUNNING;
+    state = WAITING;
     ALLEGRO_EVENT event;
     bool fps_step;
     al_start_timer(timer);
@@ -142,17 +144,39 @@ int main(int argc, char **argv)
         fps_step = (event.type == ALLEGRO_EVENT_TIMER);
 
         // Read input
+        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == ALLEGRO_KEY_Q) {
+                // For some reason Allegro 5 does not send keyboard modifiers properly
+                // to the KEY_DOWN event (see https://www.allegro.cc/forums/thread/607395).
+                // As a workaround, you can check if ctrl is down using keyboard states.
+                ALLEGRO_KEYBOARD_STATE key_state;
+                al_get_keyboard_state(&key_state);
+                if (al_key_down(&key_state, ALLEGRO_KEY_LCTRL) || al_key_down(&key_state, ALLEGRO_KEY_RCTRL)) {
+                    state = SHUTDOWN;
+                }
+            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+                if (state == WAITING) {
+                    state = RUNNING;
+                } else if (state == RUNNING && frames_left == 0) {
+                    state = SHUTDOWN;
+                }
+            }
+        }
         
         if (fps_step) {
             // Compute Step
-            frames_left = (frames_left > 0)? frames_left - 1 : frames_left;
+            if (state == RUNNING) {
+                frames_left = (frames_left > 0)? frames_left - 1 : frames_left;
+                total_frames += 1;
+            }
             float track_x, track_y;
             track_x = (DISPLAY_WIDTH  - (spr_track_w * DISPLAY_SCALE)) / 2;
             track_y = (DISPLAY_HEIGHT - (spr_track_h * DISPLAY_SCALE)) / 2;
             float run_x;
             run_x = (run_finish_x - (((float)frames_left / duration) * (run_finish_x - run_start_x)));
             int anim_frame;
-            anim_frame = (int)((float)total_frames++ / ((float)FPS / ANIMATION_FPS));
+            anim_frame = (int)((float)total_frames / ((float)FPS / ANIMATION_FPS));
             int h, m, s;
             h = (frames_left + FPS) / (3600 * FPS);
             m = ((frames_left + FPS) % (3600 * FPS)) / (60 * FPS);
@@ -160,7 +184,7 @@ int main(int argc, char **argv)
 
             // Draw Results
             al_clear_to_color(BACKGROUND_COLOR);
-            if (frames_left != 0) {
+            if (state == RUNNING && frames_left != 0) {
                 char mstr[3], sstr[3];
                 sprintf(mstr, "%2d", m);
                 sprintf(sstr, "%2d", s);
@@ -183,10 +207,12 @@ int main(int argc, char **argv)
                 }
             }
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
-            if (frames_left != 0) {
-                al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
-            } else {
-                al_draw_scaled_bitmap(anim_finish[anim_frame % 4], 0, 0, anim_finish_w, anim_finish_h, run_x, 13 * DISPLAY_SCALE, anim_finish_w * DISPLAY_SCALE, anim_finish_h * DISPLAY_SCALE, 0);
+            if (state == RUNNING) {
+                if (frames_left != 0) {
+                    al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
+                } else {
+                    al_draw_scaled_bitmap(anim_finish[anim_frame % 4], 0, 0, anim_finish_w, anim_finish_h, run_x, 13 * DISPLAY_SCALE, anim_finish_w * DISPLAY_SCALE, anim_finish_h * DISPLAY_SCALE, 0);
+                }
             }
             al_flip_display();
         }
