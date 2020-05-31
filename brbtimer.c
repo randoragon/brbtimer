@@ -63,6 +63,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "brbtimer: at least one parameter required (try 'brbtimer --help')\n");
         return 1;
     } else {
+        // Check for options
         if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
             help();
             return 0;
@@ -116,8 +117,7 @@ int main(int argc, char **argv)
 
     // Create and configure display
     const ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
-    ALLEGRO_DISPLAY *display;
-    display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
     // Load sprites
     ALLEGRO_BITMAP *spr_track, *anim_run[6], *anim_finish[4];
@@ -153,24 +153,28 @@ int main(int argc, char **argv)
     run_start_x = 6.0 * DISPLAY_SCALE;
     run_finish_x = DISPLAY_WIDTH - ((4.5 + anim_run_w) * DISPLAY_SCALE);
 
-    /* END OF INITIALIZATION */
-
+    // Set up event system and FPS timer
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
 
+
+    /* ENTER THE EVENT LOOP */
+
+    // Set up loop flow control variables
     state = noconfirm? RUNNING : WAITING;
     ALLEGRO_EVENT event;
     bool fps_step;
-    al_start_timer(timer);
 
+    al_start_timer(timer);
     do {
         al_wait_for_event(event_queue, &event);
         fps_step = (event.type == ALLEGRO_EVENT_TIMER);
 
-        // Read input
+        // React to user input
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            // Unconditional shutdown (ctrl+q)
             if (event.keyboard.keycode == ALLEGRO_KEY_Q) {
                 // For some reason Allegro 5 does not send keyboard modifiers properly
                 // to the KEY_DOWN event (see https://www.allegro.cc/forums/thread/607395).
@@ -181,6 +185,8 @@ int main(int argc, char **argv)
                     state = SHUTDOWN;
                 }
             }
+
+            // Shutdown after completion
             if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
                 if (state == WAITING) {
                     state = RUNNING;
@@ -190,15 +196,22 @@ int main(int argc, char **argv)
             }
         }
         
+        // Execute only if the loop code is running because of FPS, not because of keyboard events
         if (fps_step) {
-            // Compute Step
+            /* COMPUTE DATA FOR THE TO-BE-DRAWN FRAME */
+
+            // Update counter/countdown variables
             if (state == RUNNING) {
                 frames_left = (frames_left > 0)? frames_left - 1 : frames_left;
                 total_frames += 1;
             }
+
+            // Compute spr_track's position
             float track_x, track_y;
             track_x = (DISPLAY_WIDTH  - (spr_track_w * DISPLAY_SCALE)) / 2;
             track_y = (DISPLAY_HEIGHT - (spr_track_h * DISPLAY_SCALE)) / 2;
+
+            // Compute spr_track's fill rectangle's defining coordinates
             float rect_x1, rect_y1, rect_x2, rect_y2, rect_x2_max;
             rect_x1 = track_x + (7 * DISPLAY_SCALE);
             rect_y1 = track_y + (8 * DISPLAY_SCALE);
@@ -206,18 +219,28 @@ int main(int argc, char **argv)
             rect_x2 = rect_x1 + (6 * DISPLAY_SCALE) + (((float)(duration - frames_left) / duration) * (run_finish_x - run_start_x));
             rect_x2 = (rect_x2 > rect_x2_max)? rect_x2_max : rect_x2;
             rect_y2 = rect_y1 + (8 * DISPLAY_SCALE);
+
+            // Compute the running stick figure's position and animation frame
             float run_x;
             run_x = (run_finish_x - (((float)frames_left / duration) * (run_finish_x - run_start_x)));
             int anim_frame;
             anim_frame = (int)((float)total_frames / ((float)FPS / ANIMATION_FPS));
+
+            // Compute time to be displayed in hours, minutes and seconds
             int h, m, s;
             h = (frames_left + FPS) / (3600 * FPS);
             m = ((frames_left + FPS) % (3600 * FPS)) / (60 * FPS);
             s = (frames_left + FPS) % (60 * FPS) / FPS;
 
-            // Draw Results
+
+            /* DRAW THE FINISHED FRAME */
+
+            // Clear screen with background color
             al_clear_to_color(BACKGROUND_COLOR);
+
+            // Draw the countdown text
             if (state == RUNNING && frames_left != 0) {
+                // Convert time amounts to actual strings (sometimes we want them to have fixed width and fill the blanks with 0s)
                 char mstr[3], sstr[3];
                 sprintf(mstr, "%2d", m);
                 sprintf(sstr, "%2d", s);
@@ -226,16 +249,19 @@ int main(int argc, char **argv)
                     sstr[i] = (sstr[i] == ' ')? '0' : sstr[i];
                 }
                 if (h > 0) {
+                    // Draw in [ H : M : S ] format
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - (14 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", h);
                     al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - (12 * DISPLAY_SCALE), 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", mstr);
                     al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (12 * DISPLAY_SCALE), 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (14 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
                 } else if (m > 0 || s == 0) {
+                    // Draw in [ M : S ] format
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - (2 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", m);
                     al_draw_text(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (2 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
                 } else {
+                    // Draw in [ S ] format
                     if (s < 10) {
                         al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%d", s);
                     } else {
@@ -243,8 +269,12 @@ int main(int argc, char **argv)
                     }
                 }
             }
+
+            // Draw the track and overlapping rectangle fill
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
             al_draw_filled_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, al_map_rgba(0, 0, 0, 80));
+
+            // Draw the running stick figure
             if (state == RUNNING) {
                 if (frames_left != 0) {
                     al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
@@ -252,6 +282,8 @@ int main(int argc, char **argv)
                     al_draw_scaled_bitmap(anim_finish[anim_frame % 4], 0, 0, anim_finish_w, anim_finish_h, run_x, 13 * DISPLAY_SCALE, anim_finish_w * DISPLAY_SCALE, anim_finish_h * DISPLAY_SCALE, 0);
                 }
             }
+
+            // Update the front buffer with applied frame changes
             al_flip_display();
         }
     } while (state != SHUTDOWN);
