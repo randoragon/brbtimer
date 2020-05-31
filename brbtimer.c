@@ -217,15 +217,15 @@ int main(int argc, char **argv)
                     sstr[i] = (sstr[i] == ' ')? '0' : sstr[i];
                 }
                 if (h > 0) {
-                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - 29, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", h);
-                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - 24, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - (14 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", h);
+                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - (12 * DISPLAY_SCALE), 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", mstr);
-                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + 24, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
-                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + 29, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
+                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (12 * DISPLAY_SCALE), 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (14 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
                 } else if (m > 0 || s == 0) {
-                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - 5, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", m);
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - (2 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", m);
                     al_draw_text(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
-                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + 5, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (2 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
                 } else {
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", sstr);
                 }
