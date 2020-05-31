@@ -34,7 +34,7 @@ The default time unit is seconds, so 's' can be omitted:
 
 ```sh
 brbtimer 5      # sets timer to 5 seconds
-brbtimer 1m 2   # sets timer to 1 minute, 2 seconds
+brbtimer 1m 2s  # sets timer to 1 minute, 2 seconds
 ```
 
 ## Building from source (GNU/Linux)
