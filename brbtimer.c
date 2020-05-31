@@ -6,9 +6,10 @@
 #include "brbtimer.h"
 
 #define FPS 60
+#define ANIMATION_FPS 6
 #define BASE_WIDTH 140
 #define BASE_HEIGHT 52
-#define DISPLAY_SCALE 5
+#define DISPLAY_SCALE 2
 #define DISPLAY_WIDTH (BASE_WIDTH * DISPLAY_SCALE)
 #define DISPLAY_HEIGHT (BASE_HEIGHT * DISPLAY_SCALE)
 
@@ -70,7 +71,8 @@ int main(int argc, char **argv)
     anim_finish_w = al_get_bitmap_width(anim_finish[0]);
     anim_finish_h = al_get_bitmap_height(anim_finish[0]);
 
-    // Store runner start and end coordinates
+    // Supplementary animation variables
+    int total_frames = 0;
     float run_start_x, run_finish_x;
     run_start_x = 6.0 * DISPLAY_SCALE;
     run_finish_x = DISPLAY_WIDTH - ((4.5 + anim_run_w) * DISPLAY_SCALE);
@@ -100,11 +102,17 @@ int main(int argc, char **argv)
             track_y = (DISPLAY_HEIGHT - (spr_track_h * DISPLAY_SCALE)) / 2;
             float run_x;
             run_x = (run_finish_x - (((float)frames_left / duration) * (run_finish_x - run_start_x)));
+            int anim_frame;
+            anim_frame = (int)((float)total_frames++ / ((float)FPS / ANIMATION_FPS));
 
             // Draw Results
             al_clear_to_color(BACKGROUND_COLOR);
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
-            al_draw_scaled_bitmap(anim_run[0], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
+            if (frames_left != 0) {
+                al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
+            } else {
+                al_draw_scaled_bitmap(anim_finish[anim_frame % 4], 0, 0, anim_finish_w, anim_finish_h, run_x, 13 * DISPLAY_SCALE, anim_finish_w * DISPLAY_SCALE, anim_finish_h * DISPLAY_SCALE, 0);
+            }
             al_flip_display();
         }
     } while (state != SHUTDOWN);
