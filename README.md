@@ -26,7 +26,7 @@ You can pass as many options as you like, the sum will be calculated:
 
 ```sh
 brbtimer 1s 2s 3s 4s   # sets timer to 10 seconds
-brbtimer 1h 5m 10      # sets timer to 1 hour, 5 minutes and 10 seconds
+brbtimer 1h 5m 10s     # sets timer to 1 hour, 5 minutes and 10 seconds
 brbtimer 2h 3m 1h 4m   # sets timer to 3 hours, 7 minutes
 ```
 
@@ -34,7 +34,7 @@ The default time unit is seconds, so 's' can be omitted:
 
 ```sh
 brbtimer 5      # sets timer to 5 seconds
-brbtimer 1m 2s  # sets timer to 1 minute, 2 seconds
+brbtimer 1m 2   # sets timer to 1 minute, 2 seconds
 ```
 
 ## Building from source (GNU/Linux)
