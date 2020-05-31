@@ -10,3 +10,5 @@ typedef enum state {
 extern state_t state;
 
 extern unsigned int duration, frames_left;
+
+void help();

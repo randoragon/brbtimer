@@ -14,6 +14,25 @@
 #define DISPLAY_WIDTH (BASE_WIDTH * DISPLAY_SCALE)
 #define DISPLAY_HEIGHT (BASE_HEIGHT * DISPLAY_SCALE)
 
+void help()
+{
+    printf(
+"USAGE: \n\
+    brbtimer [-h, --help] duration...\n\
+\n\
+    Duration must be a natural number, the implicit unit is seconds.\n\
+    You can use the 'h', 'm' and 's' suffixes to specify hours, minutes and\n\
+    seconds respectively.\n\
+\n\
+    If you pass multiple duration parameters, their sum will be calculated.\n\
+\n\
+EXAMPLES:\n\
+    brbtimer 30         - sets the timer to 30 seconds\n\
+    brbtimer 20m        - sets the timer to 20 minutes\n\
+    brbtimer 1h 5m 2 3  - sets the timer to 1 hour, 5 minutes and 5 seconds\n\
+");
+}
+
 int main(int argc, char **argv)
 {
     /* INITIALIZATION PHASE */
@@ -22,18 +41,38 @@ int main(int argc, char **argv)
 
     // Parse stdin
     unsigned int duration, frames_left;
+    duration = 0;
     if (argc < 2) {
-        fprintf(stderr, "brbtimer: duration parameter required (in seconds)\n");
-        return 1;
-    } else if (argc > 2) {
-        fprintf(stderr, "brbtimer: only one parameter required (duration)\n");
+        fprintf(stderr, "brbtimer: at least one parameter required (try 'brbtimer --help')\n");
         return 1;
     } else {
-        char *p;
-        duration = strtoul(argv[1], &p, 10) * FPS;
-        if (argv[1][0] == '-' || *p != 0 || errno == ERANGE) {
-            fprintf(stderr, "brbtimer: duration must be a number of seconds between 0 and %u\n", UINT_MAX);
-            return 1;
+        if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
+            help();
+            return 0;
+        }
+
+        // Loop over duration parameters and add them up
+        for (int i = 1; i < argc; i++) {
+            char *p;
+            unsigned int amount, unit;
+            bool bad_syntax = false;
+            amount = strtoul(argv[i], &p, 10) * FPS;
+            if (argv[i][0] == '-' || amount == 0 || errno == ERANGE) {
+                fprintf(stderr, "brbtimer: failed to parse parameters, please use numbers between 1 and %u\n", UINT_MAX);
+                return 1;
+            } else if ((*p != 0 && *(p+1) != 0) || (*(p-1) < '0' || *(p-1) > '9')) {
+                bad_syntax = true;
+            } else switch (*p) {
+                case 0: case 's': unit = 1; break;
+                case 'h': unit = 3600; break;
+                case 'm': unit = 60; break;
+                default: bad_syntax = true; break;
+            }
+            if (bad_syntax) {
+                fprintf(stderr, "brbtimer: failed to parse parameters (try 'brbtimer --help')\n");
+                return 1;
+            }
+            duration += amount * unit;
         }
         frames_left = duration;
     }
