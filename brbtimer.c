@@ -26,6 +26,10 @@ void help()
 \n\
     If you pass multiple duration parameters, their sum will be calculated.\n\
 \n\
+    Note that brbtimer was coded with simple purposes in mind, and does not\n\
+    run extensive checks for integer overflow. But it shouldn't matter so long\n\
+    you use it reasonably (don't expect setting it to 99999999 hours to work).\n\
+\n\
 EXAMPLES:\n\
     brbtimer 30         - sets the timer to 30 seconds\n\
     brbtimer 20m        - sets the timer to 20 minutes\n\
@@ -149,11 +153,35 @@ int main(int argc, char **argv)
             run_x = (run_finish_x - (((float)frames_left / duration) * (run_finish_x - run_start_x)));
             int anim_frame;
             anim_frame = (int)((float)total_frames++ / ((float)FPS / ANIMATION_FPS));
-            char time_str[23];
+            int h, m, s;
+            h = (frames_left + FPS) / (3600 * FPS);
+            m = ((frames_left + FPS) % (3600 * FPS)) / (60 * FPS);
+            s = (frames_left + FPS) % (60 * FPS) / FPS;
 
             // Draw Results
             al_clear_to_color(BACKGROUND_COLOR);
-            al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%u", frames_left);
+            if (frames_left != 0) {
+                char mstr[3], sstr[3];
+                sprintf(mstr, "%2d", m);
+                sprintf(sstr, "%2d", s);
+                for (int i = 0; i < 3; i++) {
+                    mstr[i] = (mstr[i] == ' ')? '0' : mstr[i];
+                    sstr[i] = (sstr[i] == ' ')? '0' : sstr[i];
+                }
+                if (h > 0) {
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - 29, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", h);
+                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - 24, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", mstr);
+                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + 24, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + 29, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
+                } else if (m > 0 || s == 0) {
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) - 5, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_RIGHT, "%d", m);
+                    al_draw_text(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + 5, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
+                } else {
+                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", sstr);
+                }
+            }
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
             if (frames_left != 0) {
                 al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
