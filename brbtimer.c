@@ -11,7 +11,8 @@ int main(int argc, char **argv)
 
     state_t state = INIT;
 
-    // Validate input
+    // Parse stdin
+    double duration_s, time_left_s;
     if (argc < 2) {
         fprintf(stderr, "brbtimer: duration parameter required (in seconds)\n");
         return 1;
@@ -20,7 +21,6 @@ int main(int argc, char **argv)
         return 1;
     } else {
         char *p;
-        unsigned int duration_s, time_left_s;
         duration_s = strtoul(argv[1], &p, 10);
         if (argv[1][0] == '-' || *p != 0 || errno == ERANGE) {
             fprintf(stderr, "brbtimer: duration must be a number of seconds between 0 and %u\n", UINT_MAX);
@@ -40,12 +40,28 @@ int main(int argc, char **argv)
     ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
     ALLEGRO_DISPLAY *display;
     display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    al_clear_to_color(BACKGROUND_COLOR);
 
     // Load sprites
-    ALLEGRO_BITMAP *spr_track  = al_load_bitmap("res/track.png");
-    ALLEGRO_BITMAP *spr_run    = al_load_bitmap("res/run.gif");
-    ALLEGRO_BITMAP *spr_finish = al_load_bitmap("res/finish.gif");
+    ALLEGRO_BITMAP *spr_track, *anim_run[6], *anim_finish[4];
+    spr_track  = al_load_bitmap("res/track.png");
+    for (int i = 0; i < 6; i++) {
+        char filename[13], suffix[6];
+        strcpy(filename, "res/run");
+        sprintf(suffix, "%d.png", i + 1);
+        strcat(filename, suffix);
+        anim_run[i] = al_load_bitmap(filename);
+    }
+    for (int i = 0; i < 4; i++) {
+        char filename[16], suffix[6];
+        strcpy(filename, "res/finish");
+        sprintf(suffix, "%d.png", i + 1);
+        strcat(filename, suffix);
+        anim_finish[i] = al_load_bitmap(filename);
+    }
+    // Store runner start and end coordinates
+    float RUN_START_X, RUN_FINISH_X;
+    RUN_START_X = 6.0;
+    RUN_FINISH_X = DISPLAY_WIDTH - 4.5 - al_get_bitmap_width(anim_run[0]);
 
     /* END OF INITIALIZATION */
 
@@ -54,12 +70,18 @@ int main(int argc, char **argv)
         // Read input
         
         // Act
+        time_left_s = (time_left_s > 0.0)? time_left_s - 1.0 : time_left_s;
         float track_x, track_y;
         track_x = (DISPLAY_WIDTH - al_get_bitmap_width(spr_track)) / 2.0;
         track_y = (DISPLAY_HEIGHT - al_get_bitmap_height(spr_track)) / 2.0;
+        float progress = (duration_s - time_left_s) / duration_s;
+        float run_x;
+        run_x = (RUN_FINISH_X - ((time_left_s / duration_s) * (RUN_FINISH_X - RUN_START_X)));
 
-        // Redraw
+        // Draw
+        al_clear_to_color(BACKGROUND_COLOR);
         al_draw_bitmap(spr_track, track_x, track_y, 0);
+        al_draw_bitmap(anim_run[0], run_x, 13.0, 0);
         al_flip_display();
     } while (state != SHUTDOWN);
 
