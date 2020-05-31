@@ -9,4 +9,4 @@ typedef enum state {
 } state_t;
 extern state_t state;
 
-extern double duration_s, time_left_s;
+extern unsigned int duration, frames_left;
