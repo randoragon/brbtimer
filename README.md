@@ -49,7 +49,7 @@ brbtimer 1m 2   # sets timer to 1 minute, 2 seconds
 ```sh
 git clone https://github.com/randoragon/brbtimer
 cd brbtimer
-make
+sudo make install
 ```
 
 ## Other Platforms
