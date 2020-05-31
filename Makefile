@@ -9,10 +9,10 @@ install: all
 	cp -f ./brbtimer /usr/local/bin
 	chmod 755 /usr/local/bin/brbtimer
 
-brbtimer.o: brbtimer.c brbtimer.h
+brbtimer.o: brbtimer.c
 	cc -c brbtimer.c
 
-brbtimer.o.debug: brbtimer.c brbtimer.h
+brbtimer.o.debug: brbtimer.c
 	cc -g -c brbtimer.c
 
 clean:

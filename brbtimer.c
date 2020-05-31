@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "brbtimer.h"
 
 #define FPS 60
 #define ANIMATION_FPS 6
@@ -53,7 +52,12 @@ int main(int argc, char **argv)
 {
     /* INITIALIZATION PHASE */
 
-    state_t state = INIT;
+    enum {
+        INIT,
+        WAITING,
+        RUNNING,
+        SHUTDOWN
+    } state = INIT;
 
     // Parse stdin
     unsigned int duration, frames_left;
