@@ -236,7 +236,11 @@ int main(int argc, char **argv)
                     al_draw_text(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 28 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, ":");
                     al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), (DISPLAY_WIDTH / 2) + (2 * DISPLAY_SCALE), 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_LEFT, "%s", sstr);
                 } else {
-                    al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", sstr);
+                    if (s < 10) {
+                        al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%d", s);
+                    } else {
+                        al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%s", sstr);
+                    }
                 }
             }
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
