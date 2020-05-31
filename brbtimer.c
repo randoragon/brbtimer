@@ -1,6 +1,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -111,6 +112,7 @@ int main(int argc, char **argv)
     al_init_font_addon();
     al_init_ttf_addon();
     al_install_keyboard();
+    al_init_primitives_addon();
 
     // Create and configure display
     const ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
@@ -197,6 +199,13 @@ int main(int argc, char **argv)
             float track_x, track_y;
             track_x = (DISPLAY_WIDTH  - (spr_track_w * DISPLAY_SCALE)) / 2;
             track_y = (DISPLAY_HEIGHT - (spr_track_h * DISPLAY_SCALE)) / 2;
+            float rect_x1, rect_y1, rect_x2, rect_y2, rect_x2_max;
+            rect_x1 = track_x + (7 * DISPLAY_SCALE);
+            rect_y1 = track_y + (8 * DISPLAY_SCALE);
+            rect_x2_max = rect_x1 + (118 * DISPLAY_SCALE);
+            rect_x2 = rect_x1 + (6 * DISPLAY_SCALE) + (((float)(duration - frames_left) / duration) * (run_finish_x - run_start_x));
+            rect_x2 = (rect_x2 > rect_x2_max)? rect_x2_max : rect_x2;
+            rect_y2 = rect_y1 + (8 * DISPLAY_SCALE);
             float run_x;
             run_x = (run_finish_x - (((float)frames_left / duration) * (run_finish_x - run_start_x)));
             int anim_frame;
@@ -231,6 +240,7 @@ int main(int argc, char **argv)
                 }
             }
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
+            al_draw_filled_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, al_map_rgba(0, 0, 0, 80));
             if (state == RUNNING) {
                 if (frames_left != 0) {
                     al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
