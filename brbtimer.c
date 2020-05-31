@@ -1,5 +1,6 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -40,6 +41,8 @@ int main(int argc, char **argv)
     // Initialize library components
     al_init();
     al_init_image_addon();
+    al_init_font_addon();
+    al_init_ttf_addon();
 
     // Create and configure display
     const ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
@@ -70,6 +73,9 @@ int main(int argc, char **argv)
     }
     anim_finish_w = al_get_bitmap_width(anim_finish[0]);
     anim_finish_h = al_get_bitmap_height(anim_finish[0]);
+
+    // Load font
+    ALLEGRO_FONT *pixeldise = al_load_ttf_font("res/pixeldise.ttf", -12 * 2 * DISPLAY_SCALE, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
 
     // Supplementary animation variables
     int total_frames = 0;
@@ -104,9 +110,11 @@ int main(int argc, char **argv)
             run_x = (run_finish_x - (((float)frames_left / duration) * (run_finish_x - run_start_x)));
             int anim_frame;
             anim_frame = (int)((float)total_frames++ / ((float)FPS / ANIMATION_FPS));
+            char time_str[23];
 
             // Draw Results
             al_clear_to_color(BACKGROUND_COLOR);
+            al_draw_textf(pixeldise, al_map_rgb(255, 255, 255), DISPLAY_WIDTH / 2, 29 * DISPLAY_SCALE, ALLEGRO_ALIGN_CENTER, "%u", frames_left);
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
             if (frames_left != 0) {
                 al_draw_scaled_bitmap(anim_run[anim_frame % 6], 0, 0, anim_run_w, anim_run_h, run_x, 13 * DISPLAY_SCALE, anim_run_w * DISPLAY_SCALE, anim_run_h * DISPLAY_SCALE, 0);
@@ -126,6 +134,7 @@ int main(int argc, char **argv)
         al_destroy_bitmap(anim_finish[i]);
     }
     al_destroy_event_queue(event_queue);
+    al_destroy_font(pixeldise);
 
     return 0;
 }
