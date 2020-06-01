@@ -6,7 +6,7 @@ debug: brbtimer.o.debug
 
 install: all
 	mkdir -p /usr/local/bin
-	cp -f ./brbtimer /usr/local/bin
+	ln -sfT -- "$(shell pwd)/brbtimer" /usr/local/bin/brbtimer
 	chmod 755 /usr/local/bin/brbtimer
 
 brbtimer.o: brbtimer.c

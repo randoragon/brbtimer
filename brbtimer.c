@@ -112,44 +112,93 @@ int main(int argc, char **argv)
     }
 
     // Initialize library components
-    al_init();
-    al_init_image_addon();
-    al_init_font_addon();
-    al_init_ttf_addon();
-    al_install_keyboard();
-    al_init_primitives_addon();
+    if (!al_init()) {
+        fprintf(stderr, "brbtimer: failed to initialize allegro5\n");
+        return 1;
+    }
+    if (!al_init_image_addon()) {
+        fprintf(stderr, "brbtimer: failed to initialize allegro5 image addon\n");
+        return 1;
+    }
+    if (!al_init_font_addon()) {
+        fprintf(stderr, "brbtimer: failed to initialize allegro5 font addon\n");
+        return 1;
+    }
+    if (!al_init_ttf_addon()) {
+        fprintf(stderr, "brbtimer: failed to initialize allegro5 ttf addon\n");
+        return 1;
+    }
+    if (!al_install_keyboard()) {
+        fprintf(stderr, "brbtimer: failed to install the keyboard driver\n");
+        return 1;
+    }
+    if (!al_init_primitives_addon()) {
+        fprintf(stderr, "brbtimer: failed to initialize allegro5 primitives addon\n");
+        return 1;
+    }
 
     // Create and configure display
     const ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
-    al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    if (al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT) == NULL) {
+        fprintf(stderr, "brbtimer: failed to create display\n");
+        return 1;
+    }
 
     // Load sprites
+    const char *res_path = al_path_cstr(al_get_standard_path(ALLEGRO_RESOURCES_PATH), '/');
     ALLEGRO_BITMAP *spr_track, *anim_run[6], *anim_finish[4];
     int spr_track_w, spr_track_h, anim_run_w, anim_run_h, anim_finish_w, anim_finish_h;
-    spr_track  = al_load_bitmap("res/track.png");
+    char *filename = malloc((strlen(res_path) + strlen("res/track.png") + 1) * sizeof(char));
+    strcpy(filename, res_path);
+    strcat(filename, "res/track.png");
+    if ((spr_track = al_load_bitmap(filename)) == NULL) {
+        fprintf(stderr, "brbtimer: failed to load resource: '%s'\n", filename);
+        return 1;
+    }
+    free(filename);
     spr_track_w = al_get_bitmap_width(spr_track);
     spr_track_h = al_get_bitmap_height(spr_track);
+    filename = malloc((strlen(res_path) + strlen("res/runX.png") + 1) * sizeof(char));
     for (int i = 0; i < 6; i++) {
-        char filename[13], suffix[6];
-        strcpy(filename, "res/run");
+        char suffix[6];
+        strcpy(filename, res_path);
+        strcat(filename, "res/run");
         sprintf(suffix, "%d.png", i + 1);
         strcat(filename, suffix);
-        anim_run[i] = al_load_bitmap(filename);
+        if ((anim_run[i] = al_load_bitmap(filename)) == NULL) {
+            fprintf(stderr, "brbtimer: failed to load resource: '%s'\n", filename);
+            return 1;
+        }
     }
+    free(filename);
     anim_run_w = al_get_bitmap_width(anim_run[0]);
     anim_run_h = al_get_bitmap_height(anim_run[0]);
+    filename = malloc((strlen(res_path) + strlen("res/finishX.png") + 1) * sizeof(char));
     for (int i = 0; i < 4; i++) {
-        char filename[16], suffix[6];
-        strcpy(filename, "res/finish");
+        char suffix[6];
+        strcpy(filename, res_path);
+        strcat(filename, "res/finish");
         sprintf(suffix, "%d.png", i + 1);
         strcat(filename, suffix);
-        anim_finish[i] = al_load_bitmap(filename);
+        if ((anim_finish[i] = al_load_bitmap(filename)) == NULL) {
+            fprintf(stderr, "brbtimer: failed to load resource: '%s'\n", filename);
+            return 1;
+        }
     }
+    free(filename);
     anim_finish_w = al_get_bitmap_width(anim_finish[0]);
     anim_finish_h = al_get_bitmap_height(anim_finish[0]);
 
     // Load font
-    ALLEGRO_FONT *pixeldise = al_load_ttf_font("res/pixeldise.ttf", -12 * 2 * DISPLAY_SCALE, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+    filename = malloc((strlen(res_path) + strlen("res/pixeldise.ttf") + 1) * sizeof(char));
+    strcpy(filename, res_path);
+    strcat(filename, "res/pixeldise.ttf");
+    ALLEGRO_FONT *pixeldise;
+    if ((pixeldise = al_load_ttf_font(filename, -12 * 2 * DISPLAY_SCALE, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT))) {
+        fprintf(stderr, "brbtimer: failed to load resource: '%s'\n", filename);
+        return 1;
+    }
+    free(filename);
 
     // Supplementary animation variables
     int total_frames = 0;

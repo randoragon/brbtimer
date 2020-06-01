@@ -37,6 +37,11 @@ brbtimer 5      # sets timer to 5 seconds
 brbtimer 1m 2   # sets timer to 1 minute, 2 seconds
 ```
 
+Once the program has started, you will be required to press enter once to start the countdown.
+Alternatively, you can pass the ``-n`` or ``--noconfirm`` option to begin the countdown immediately.
+Once the countdown has finished, pressing enter again will close the program. You may also terminate
+execution at any time with ctrl+q.
+
 ## Building from source (GNU/Linux)
 
 ### Prerequisites
@@ -51,6 +56,10 @@ git clone https://github.com/randoragon/brbtimer
 cd brbtimer
 sudo make install
 ```
+
+Note that the installation creates a symlink inside ``/usr/local/bin`` which points to the cloned ``brbtimer`` directory.
+This is because the executable depends on the ``brbtimer/res`` directory's contents, so you can't just delete the
+downloaded directory afterwards.
 
 ## Other Platforms
 
