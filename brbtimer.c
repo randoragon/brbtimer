@@ -194,7 +194,7 @@ int main(int argc, char **argv)
     strcpy(filename, res_path);
     strcat(filename, "res/pixeldise.ttf");
     ALLEGRO_FONT *pixeldise;
-    if ((pixeldise = al_load_ttf_font(filename, -12 * 2 * DISPLAY_SCALE, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT))) {
+    if ((pixeldise = al_load_ttf_font(filename, -12 * 2 * DISPLAY_SCALE, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT)) == NULL) {
         fprintf(stderr, "brbtimer: failed to load resource: '%s'\n", filename);
         return 1;
     }
