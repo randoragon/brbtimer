@@ -12,6 +12,8 @@ but there's no harm sharing it in an open-source manner, is there?
 
 ## Usage
 
+![preview](https://github.com/Randoragon/brbtimer/blob/master/preview.gif)
+
 brbtimer needs to be invoked from a command line interface in order to work.
 You pass the amount of time you want it to count down via command parameters.  
 The quickest way to understand the syntax is with examples:
