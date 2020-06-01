@@ -139,16 +139,30 @@ int main(int argc, char **argv)
 
     // Create and configure display
     const ALLEGRO_COLOR BACKGROUND_COLOR = al_map_rgb(255, 0, 255);
-    if (al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT) == NULL) {
+    ALLEGRO_DISPLAY *display;
+    al_set_new_display_flags(ALLEGRO_WINDOWED);
+    if ((display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT)) == NULL) {
         fprintf(stderr, "brbtimer: failed to create display\n");
         return 1;
     }
+    al_set_window_title(display, "brbtimer");
+    // the window icon is set at the beginning of the "Load sprites" section
 
     // Load sprites
     const char *res_path = al_path_cstr(al_get_standard_path(ALLEGRO_RESOURCES_PATH), '/');
-    ALLEGRO_BITMAP *spr_track, *anim_run[6], *anim_finish[4];
+    ALLEGRO_BITMAP *icon, *spr_track, *anim_run[6], *anim_finish[4];
     int spr_track_w, spr_track_h, anim_run_w, anim_run_h, anim_finish_w, anim_finish_h;
-    char *filename = malloc((strlen(res_path) + strlen("res/track.png") + 1) * sizeof(char));
+    char *filename;
+    filename = malloc((strlen(res_path) + strlen("res/icon.png") + 1) * sizeof(char));
+    strcpy(filename, res_path);
+    strcat(filename, "res/icon.png");
+    if ((icon = al_load_bitmap(filename)) == NULL) {
+        fprintf(stderr, "brbtimer: failed to load resource: '%s'\n", filename);
+        return 1;
+    }
+    al_set_display_icon(display, icon);
+    free(filename);
+    filename = malloc((strlen(res_path) + strlen("res/track.png") + 1) * sizeof(char));
     strcpy(filename, res_path);
     strcat(filename, "res/track.png");
     if ((spr_track = al_load_bitmap(filename)) == NULL) {
