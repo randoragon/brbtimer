@@ -325,7 +325,9 @@ int main(int argc, char **argv)
 
             // Draw the track and overlapping rectangle fill
             al_draw_scaled_bitmap(spr_track, 0, 0, spr_track_w, spr_track_h, track_x, track_y, spr_track_w * DISPLAY_SCALE, spr_track_h * DISPLAY_SCALE, 0);
-            al_draw_filled_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, al_map_rgba(0, 0, 0, 80));
+            if (state == RUNNING) {
+                al_draw_filled_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, al_map_rgba(0, 0, 0, 80));
+            }
 
             // Draw the running stick figure
             if (state == RUNNING) {
