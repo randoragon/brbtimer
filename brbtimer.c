@@ -154,6 +154,10 @@ int main(int argc, char **argv)
     int spr_track_w, spr_track_h, anim_run_w, anim_run_h, anim_finish_w, anim_finish_h;
     char *filename;
     filename = malloc((strlen(res_path) + strlen("res/icon.png") + 1) * sizeof(char));
+    if (filename == NULL) {
+        fprintf(stderr, "brbtimer: failed to allocate heap memory");
+        return 1;
+    }
     strcpy(filename, res_path);
     strcat(filename, "res/icon.png");
     if ((icon = al_load_bitmap(filename)) == NULL) {
@@ -163,6 +167,10 @@ int main(int argc, char **argv)
     al_set_display_icon(display, icon);
     free(filename);
     filename = malloc((strlen(res_path) + strlen("res/track.png") + 1) * sizeof(char));
+    if (filename == NULL) {
+        fprintf(stderr, "brbtimer: failed to allocate heap memory");
+        return 1;
+    }
     strcpy(filename, res_path);
     strcat(filename, "res/track.png");
     if ((spr_track = al_load_bitmap(filename)) == NULL) {
@@ -173,6 +181,10 @@ int main(int argc, char **argv)
     spr_track_w = al_get_bitmap_width(spr_track);
     spr_track_h = al_get_bitmap_height(spr_track);
     filename = malloc((strlen(res_path) + strlen("res/runX.png") + 1) * sizeof(char));
+    if (filename == NULL) {
+        fprintf(stderr, "brbtimer: failed to allocate heap memory");
+        return 1;
+    }
     for (int i = 0; i < 6; i++) {
         char suffix[6];
         strcpy(filename, res_path);
@@ -188,6 +200,10 @@ int main(int argc, char **argv)
     anim_run_w = al_get_bitmap_width(anim_run[0]);
     anim_run_h = al_get_bitmap_height(anim_run[0]);
     filename = malloc((strlen(res_path) + strlen("res/finishX.png") + 1) * sizeof(char));
+    if (filename == NULL) {
+        fprintf(stderr, "brbtimer: failed to allocate heap memory");
+        return 1;
+    }
     for (int i = 0; i < 4; i++) {
         char suffix[6];
         strcpy(filename, res_path);
@@ -205,6 +221,10 @@ int main(int argc, char **argv)
 
     // Load font
     filename = malloc((strlen(res_path) + strlen("res/pixeldise.ttf") + 1) * sizeof(char));
+    if (filename == NULL) {
+        fprintf(stderr, "brbtimer: failed to allocate heap memory");
+        return 1;
+    }
     strcpy(filename, res_path);
     strcat(filename, "res/pixeldise.ttf");
     ALLEGRO_FONT *pixeldise;
