@@ -1,0 +1,47 @@
+.TH BRBTIMER 1 2021-04-16
+.SH NAME
+brbtimer - a simple animated timer overlay for "be right back" livestream scenes
+.SH SYNOPSIS
+.B brbtimer
+.RI [ OPTIONS ]
+.IR DURATION ...
+.SH DESCRIPTION
+.P
+Duration must be a natural number, the implicit unit is seconds.
+You can use the
+.BR h ", " m " and " s
+suffixes to specify hours, minutes and seconds respectively.
+.P
+You can pass multiple duration parameters, their sum will be calculated.
+.P
+Note that
+.B brbtimer
+was coded with simple purposes in mind, and it does not run
+extensive checks for integer overflow. But it shouldn't matter so long
+you use it reasonably (don't expect setting it to 99999999 hours to work).
+.SH OPTIONS
+.TP
+.RB \-h ", " \-\-help
+Prints a help message.
+.TP
+.RB \-n ", " \-\-noconfirm
+Starts the timer without waiting for the user to press enter.
+.SH EXAMPLE
+.IP "brbtimer 30" 2i
+- sets the timer to 30 seconds
+.IP "brbtimer 20m" 2i
+- sets the timer to 20 minutes
+.IP "brbtimer 1h 5m 2 3" 2i
+- sets the timer to 1 hour, 5 minutes and 5 seconds
+.SH AUTHORS
+.P
+.B brbtimer
+was written by
+.MT "randoragongamedev@gmail.com"
+Randoragon
+.ME
+.br
+Browse the source code at
+.UR "https://github.com/randoragon/brbtimer"
+GitHub
+.UE

@@ -53,15 +53,22 @@ execution at any time with ctrl+q.
 
 ### Installation
 
+Run the following (if necessary, as root):
+
 ```sh
-git clone https://github.com/randoragon/brbtimer
-cd brbtimer
-sudo make install
+make install
 ```
 
 Note that the installation creates a symlink inside ``/usr/local/bin`` which points to the cloned ``brbtimer`` directory.
 This is because the executable depends on the ``brbtimer/res`` directory's contents, so you can't just delete the
-downloaded directory afterwards.
+downloaded directory afterwards.  
+The man page, **brbtimer(1)** will be installed to ``/usr/share/man/man1/brbtimer``.
+
+To uninstall the program, run (if necessary, as root):
+
+```sh
+make uninstall
+```
 
 ## Other Platforms
 
