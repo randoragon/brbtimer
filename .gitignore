@@ -1,3 +1,6 @@
+.direnv/
+.envrc
+
 *.o
 brbtimer
 Session.vim
