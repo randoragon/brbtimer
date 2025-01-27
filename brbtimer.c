@@ -30,6 +30,8 @@ void help()
     run extensive checks for integer overflow. But it shouldn't matter so long\n\
     you use it reasonably (don't expect setting it to 99999999 hours to work).\n\
 \n\
+    At any point, it is possible to quit brbtimer by pressing 'q'.\n\
+\n\
 OPTIONS\n\
     -h, --help\n\
         Prints this help message.\n\
@@ -261,16 +263,14 @@ int main(int argc, char **argv)
 
         // React to user input
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            // Unconditional shutdown (ctrl+q)
+            // Unconditional shutdown (q)
             if (event.keyboard.keycode == ALLEGRO_KEY_Q) {
                 // For some reason Allegro 5 does not send keyboard modifiers properly
                 // to the KEY_DOWN event (see https://www.allegro.cc/forums/thread/607395).
                 // As a workaround, you can check if ctrl is down using keyboard states.
                 ALLEGRO_KEYBOARD_STATE key_state;
                 al_get_keyboard_state(&key_state);
-                if (al_key_down(&key_state, ALLEGRO_KEY_LCTRL) || al_key_down(&key_state, ALLEGRO_KEY_RCTRL)) {
-                    state = SHUTDOWN;
-                }
+                state = SHUTDOWN;
             }
 
             // Shutdown after completion
